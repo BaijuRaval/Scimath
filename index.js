@@ -18,7 +18,7 @@ const razorpay = new Razorpay({
 // Create Razorpay Order
 app.post('/create-order', async (req, res) => {
   const options = {
-    amount: 49900, // ₹499 in paise (matches plan_gpay.html)
+    amount: 100, // ₹499 in paise
     currency: 'INR',
     receipt: `order_${Date.now()}`,
   };
