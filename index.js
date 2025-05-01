@@ -30,16 +30,11 @@ try {
 // Create Razorpay Order
 app.post('/create-order', async (req, res) => {
   console.log('[Create Order] Request Body:', req.body);
-  const { currency, user_id, user_email } = req.body;
+  const { user_id, user_email } = req.body;
 
-  // Validate currency
-  if (!currency) {
-    console.error('[Create Order] Missing currency:', { currency });
-    return res.status(400).json({ error: 'Currency is required' });
-  }
-
-  // Set amount server-side
+  // Set amount and currency server-side
   const amount = 49900; // ₹499 in paisa
+  const currency = 'INR';
 
   // Generate a short receipt (max 40 characters)
   const timestamp = Date.now().toString().slice(-8); // Last 8 digits of timestamp
@@ -48,7 +43,7 @@ app.post('/create-order', async (req, res) => {
 
   const options = {
     amount: amount, // Amount in paisa
-    currency: currency || 'INR',
+    currency: currency,
     receipt: receipt,
     notes: { user_id, user_email },
   };
@@ -68,7 +63,7 @@ app.post('/create-order', async (req, res) => {
 
 // Verify Payment
 app.post('/verify-payment', (req, res) => {
-  اصفهان.log('[Verify Payment] Request Body:', req.body);
+  console.log('[Verify Payment] Request Body:', req.body);
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
