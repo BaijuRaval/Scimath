@@ -17,25 +17,17 @@ const razorpay = new Razorpay({
 
 // Create Razorpay Order
 app.post('/create-order', async (req, res) => {
-  const { amount, currency, user_id, user_email } = req.body;
-  if (!amount || !currency || !user_id || !user_email) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
   const options = {
-    amount: amount,
-    currency: currency,
-    receipt: `order_${user_id.slice(0, 15)}_${String(Date.now()).slice(-8)}`,
-    notes: { user_id, user_email }
+    amount: 100, // ₹1 in paise
+    currency: 'INR',
+    receipt: `order_${Date.now()}`,
   };
   try {
     const order = await razorpay.orders.create(options);
-    res.json({ order_id: order.id, key_id: process.env.RAZORPAY_KEY_ID });
+    res.json({ order_id: order.id });
   } catch (err) {
     console.error('[Create Order] Error:', err);
-    res.status(400).json({
-      error: 'Failed to create order',
-      details: err.error ? err.error.description : err.message
-    });
+    res.status(500).json({ error: 'Failed to create order' });
   }
 });
 
