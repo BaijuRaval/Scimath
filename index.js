@@ -82,7 +82,7 @@ app.post('/verify-payment', (req, res) => {
 
   const generatedSignature = crypto
     .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-    .update(  .update(razorpay_order_id + '|' + razorpay_payment_id)
+    .update(razorpay_order_id + '|' + razorpay_payment_id)
     .digest('hex');
 
   if (generatedSignature === razorpay_signature) {
