@@ -17,14 +17,22 @@ const razorpay = new Razorpay({
 
 // Create Razorpay Order
 app.post('/create-order', async (req, res) => {
+  const { amount, currency, user_id, user_email } = req.body;
+  if (!amount || !currency) {
+    return res.status(400).json({ error: 'Amount and currency are required' });
+  }
   const options = {
-    amount: 100, // ₹1 in paise
-    currency: 'INR',
-    receipt: `order_${Date.now()}`,
+    amount: parseInt(amount), // Ensure amount is an integer (paisa)
+    currency: currency || 'INR',
+    receipt: `order_${Date.now()}_${user_id || 'guest'}`,
+    notes: { user_id, user_email },
   };
   try {
     const order = await razorpay.orders.create(options);
-    res.json({ order_id: order.id });
+    res.json({
+      order_id: order.id,
+      key_id: process.env.RAZORPAY_KEY_ID, // Send key_id to client
+    });
   } catch (err) {
     console.error('[Create Order] Error:', err);
     res.status(500).json({ error: 'Failed to create order' });
