@@ -24,7 +24,7 @@ app.post('/create-order', async (req, res) => {
   const options = {
     amount: amount,
     currency: currency,
-    receipt: `order_${user_id}_${Date.now()}`,
+    receipt: `order_${user_id.slice(0, 15)}_${String(Date.now()).slice(-8)}`,
     notes: { user_id, user_email }
   };
   try {
@@ -32,7 +32,10 @@ app.post('/create-order', async (req, res) => {
     res.json({ order_id: order.id, key_id: process.env.RAZORPAY_KEY_ID });
   } catch (err) {
     console.error('[Create Order] Error:', err);
-    res.status(500).json({ error: 'Failed to create order' });
+    res.status(400).json({
+      error: 'Failed to create order',
+      details: err.error ? err.error.description : err.message
+    });
   }
 });
 
