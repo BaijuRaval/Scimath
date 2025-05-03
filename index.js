@@ -33,7 +33,7 @@ app.post('/create-order', async (req, res) => {
   const { user_id, user_email } = req.body;
 
   // Set amount and currency server-side
-  const amount = 100; // ₹1 in paisa
+  const amount = 49900; // ₹499 in paisa
   const currency = 'INR';
 
   // Generate a short receipt (max 40 characters)
