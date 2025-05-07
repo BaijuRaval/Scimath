@@ -33,7 +33,7 @@ app.post('/create-order', async (req, res) => {
   const { user_id, user_email } = req.body;
 
   // Set amount and currency server-side
-  const amount = 49900; // ₹499 in paisa
+  const amount = 100; // ₹1 in paisa
   const currency = 'INR';
 
   // Generate a short receipt (max 40 characters)
@@ -82,6 +82,40 @@ app.post('/verify-payment', (req, res) => {
   } else {
     console.error('[Verify Payment] Invalid signature:', { razorpay_order_id, razorpay_payment_id });
     res.status(400).json({ status: 'failure', message: 'Payment verification failed' });
+  }
+});
+
+// Check Payment Status
+app.post('/check-payment', async (req, res) => {
+  console.log('[Check Payment] Request Body:', req.body);
+  const { order_id } = req.body;
+
+  if (!order_id) {
+    console.error('[Check Payment] Missing order_id:', req.body);
+    return res.status(400).json({ status: 'failure', message: 'Missing order_id' });
+  }
+
+  try {
+    const payments = await razorpay.orders.fetchPayments(order_id);
+    console.log('[Check Payment] Payments for order:', order_id, payments);
+
+    if (payments.items && payments.items.length > 0) {
+      const successfulPayment = payments.items.find(payment => payment.status === 'captured');
+      if (successfulPayment) {
+        console.log('[Check Payment] Found successful payment:', successfulPayment.id);
+        return res.json({
+          status: 'paid',
+          payment_id: successfulPayment.id,
+          message: 'Payment found and captured'
+        });
+      }
+    }
+
+    console.log('[Check Payment] No successful payment found for order:', order_id);
+    return res.json({ status: 'not_paid', message: 'No successful payment found' });
+  } catch (error) {
+    console.error('[Check Payment] Razorpay Error:', error);
+    res.status(500).json({ status: 'error', message: `Failed to check payment: ${error.message}` });
   }
 });
 
